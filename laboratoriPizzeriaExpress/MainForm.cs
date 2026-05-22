@@ -13,6 +13,7 @@ namespace laboratoriPizzeriaCampusExpress
     {
         // Colecciones principales: FIFO para pedidos, LIFO para bitácora
         private Queue<string> colaPedidos = new Queue<string>();
+        private Queue<string> colaPremium = new Queue<string>();
         private Stack<string> pilaBitacora = new Stack<string>();
 
         public MainForm()
@@ -48,6 +49,8 @@ namespace laboratoriPizzeriaCampusExpress
         // PASO 2: Entregar pedido (FIFO salida)
         private void BtnEntregar_Click(object sender, EventArgs e)
         {
+        	AtenderSiguiente();
+        	
             if (colaPedidos.Count == 0)
             {
                 lblEstado.Text = string.Format("❌ No hay pedidos pendientes.");
@@ -116,6 +119,11 @@ namespace laboratoriPizzeriaCampusExpress
             // Limpiar listas visuales
             lstPedidos.Items.Clear();
             lstBitacora.Items.Clear();
+            
+            foreach (string p in colaPremium)
+                lstPedidos.Items.Add(p);
+            if (colaPremium.Count == 0)
+                lstPedidos.Items.Add("(Sin pedidos pendientes)");
 
             // Mostrar cola de pedidos
             foreach (string p in colaPedidos)
@@ -133,5 +141,58 @@ namespace laboratoriPizzeriaCampusExpress
             lblContador.Text = string.Format("Pedidos: {0} | Bitácora: {1}",
                 colaPedidos.Count, pilaBitacora.Count);
         }
+        
+        void AtenderSiguiente()
+        {
+        	if (colaPremium.Count != 0){
+        
+            string cliente = colaPremium.Dequeue();
+            pilaBitacora.Push(string.Format("PEDIDO PREMIUM ENTREGADO: {0}", cliente));
+            lblEstado.Text = string.Format("🍕 Pedido entregado a {0}", cliente);
+            ActualizarUI();
+        	}
+            else{
+             string cliente = colaPremium.Dequeue();
+            pilaBitacora.Push(string.Format("ENTREGADO: {0}", cliente));
+            lblEstado.Text = string.Format("🍕 Pedido entregado a {0}", cliente);
+            ActualizarUI();
+            	
+            	
+            }
+        
+        
+        
+        
+        
+        }
+        
+  
+        
+      
+        
+        void Button1Click(object sender, EventArgs e)
+        {
+        	
+            string cliente = txtCliente.Text.Trim();
+
+            // Validar entrada
+            if (cliente == "")
+            {
+                lblEstado.Text = string.Format("⚠️ Debe ingresar un nombre de cliente.");
+                return;
+            }
+
+            // Agregar a la cola
+            colaPremium.Enqueue(cliente);
+
+            // Registrar en la pila
+            pilaBitacora.Push(string.Format("PEDIDO PREMIUM: {0}", cliente));
+
+            // Limpiar campo y actualizar
+            txtCliente.Clear();
+            lblEstado.Text = string.Format("✅ Pedido registrado para {0}", cliente);
+            ActualizarUI();
+        }
+
+        }
     }
-}
